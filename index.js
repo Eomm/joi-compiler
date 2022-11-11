@@ -9,9 +9,16 @@ const contextBucket = require('./src/bucket')
 warning.create('JoiCompiler', 'FSTJOI001', 'You cannot use external schemas via "fastify.addSchema" with Joi')
 
 function ValidatorSelector (opts = {}) {
-  const { prefs = {} } = opts
+  const {
+    prefs,
+    extensions
+  } = opts
 
-  Joi.checkPreferences(prefs)
+  if (prefs) {
+    Joi.checkPreferences(prefs)
+  }
+
+  const joiCustom = extensions ? Joi.extend(...extensions) : Joi
 
   function buildValidator (externalSchemas, options) {
     // ? options is equal to fastify({ ajv }) options
@@ -21,11 +28,11 @@ function ValidatorSelector (opts = {}) {
     }
 
     return function validatorCompiler ({ schema /*, method, url, httpPart */ }) {
-      // const schema = Joi.compile(definition)
       return function executeValidation (data) {
-        prefs.context = externalSchemas
-
-        return schema.validate(data, prefs)
+        return schema.validate(data, {
+          ...prefs,
+          context: externalSchemas
+        })
       }
     }
   }
@@ -33,7 +40,7 @@ function ValidatorSelector (opts = {}) {
   return {
     bucket: contextBucket,
     buildValidator,
-    joi: Joi
+    joi: joiCustom
   }
 }
 
