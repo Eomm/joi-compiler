@@ -6,11 +6,23 @@ const Joi = require('joi')
 const fastify = require('fastify')
 const JoiCompiler = require('../index')
 
-tap.test('Fastify integration', async t => {
-  const factory = JoiCompiler()
+function echo (request, reply) {
+  reply.send({
+    body: request.body,
+    headers: request.headers,
+    query: request.query,
+    params: request.params
+  })
+}
+
+tap.test('Basic validation', async t => {
+  const factory = JoiCompiler({
+    prefs: {
+      allowUnknown: true
+    }
+  })
 
   const app = fastify({
-    jsonShorthand: false,
     schemaController: {
       compilersFactory: {
         buildValidator: factory
@@ -19,21 +31,68 @@ tap.test('Fastify integration', async t => {
   })
 
   app.get('/', {
+    handler: echo,
     schema: {
       headers: Joi.object({
-        'user-agent': Joi.string().required(),
-        host: Joi.string().required()
+        foo: Joi.string().required()
       })
     }
-  }, (request, reply) => {
-    reply.send(request.headers)
   })
 
-  const res = await app.inject('/')
+  {
+    const res = await app.inject('/')
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: '"foo" is required'
+    })
+  }
 
-  t.equal(res.statusCode, 200)
-  t.same(res.json(), {
-    'user-agent': 'lightMyRequest',
-    host: 'localhost:80'
+  {
+    const res = await app.inject({ url: '/', headers: { foo: 'bar' } })
+    t.equal(res.statusCode, 200)
+    t.equal(res.json().headers.foo, 'bar')
+  }
+})
+
+tap.test('Bad options', async t => {
+  try {
+    JoiCompiler({ prefs: { asd: 22 } })
+    t.fail('Should throw')
+  } catch (error) {
+    t.same(error.message, '"asd" is not allowed')
+  }
+})
+
+tap.test('Should emit a WARNING when using addSchema', t => {
+  t.plan(1)
+  const factory = JoiCompiler()
+
+  const app = fastify({
+    schemaController: {
+      compilersFactory: {
+        buildValidator: factory
+      }
+    }
   })
+
+  process.removeAllListeners('warning')
+  process.on('warning', onWarning)
+  function onWarning (warn) {
+    t.equal(warn.code, 'FSTJOI001')
+  }
+  t.teardown(() => process.removeListener('warning', onWarning))
+
+  app.addSchema({ $id: 'test', type: 'object', properties: {} })
+  app.get('/', {
+    handler: echo,
+    schema: {
+      headers: Joi.object({
+        foo: Joi.string().required()
+      })
+    }
+  })
+
+  app.ready()
 })

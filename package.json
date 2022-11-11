@@ -31,6 +31,7 @@
     "tap": "^16.3.0"
   },
   "dependencies": {
-    "joi": "^17.7.0"
+    "joi": "^17.7.0",
+    "process-warning": "^2.0.0"
   }
 }
