@@ -1,0 +1,36 @@
+{
+  "name": "joi-compiler",
+  "version": "0.0.0",
+  "description": "Build and manage the JOI instances for the fastify framework",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "tap test/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eomm/joi-compiler.git"
+  },
+  "keywords": [
+    "joi",
+    "fastify",
+    "schema",
+    "validation",
+    "compiler"
+  ],
+  "author": "Manuel Spigolon <manuel.spigolon@nearform.com> (https://github.com/Eomm)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eomm/joi-compiler/issues"
+  },
+  "homepage": "https://github.com/Eomm/joi-compiler#readme",
+  "devDependencies": {
+    "fastify": "^4.9.2",
+    "standard": "^17.0.0",
+    "tap": "^16.3.0"
+  },
+  "dependencies": {
+    "joi": "^17.7.0"
+  }
+}
