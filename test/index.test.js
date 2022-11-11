@@ -25,7 +25,7 @@ tap.test('Basic validation', async t => {
   const app = fastify({
     schemaController: {
       compilersFactory: {
-        buildValidator: factory
+        buildValidator: factory.buildValidator
       }
     }
   })
@@ -72,7 +72,7 @@ tap.test('Should emit a WARNING when using addSchema', t => {
   const app = fastify({
     schemaController: {
       compilersFactory: {
-        buildValidator: factory
+        buildValidator: factory.buildValidator
       }
     }
   })
@@ -95,4 +95,69 @@ tap.test('Should emit a WARNING when using addSchema', t => {
   })
 
   app.ready()
+})
+
+tap.test('Should manage the context via bucket context', async t => {
+  const factory = JoiCompiler()
+
+  const app = fastify({
+    schemaController: {
+      bucket: factory.bucket,
+      compilersFactory: {
+        buildValidator: factory.buildValidator
+      }
+    }
+  })
+
+  process.removeAllListeners('warning')
+  process.on('warning', onWarning)
+  function onWarning (warn) {
+    t.fail('Should not emit warning')
+  }
+  t.teardown(() => process.removeListener('warning', onWarning))
+
+  app.addSchema({ $id: 'x', value: 42 })
+  const schema = app.getSchema('x')
+  t.equal(schema, 42)
+
+  try {
+    app.addSchema({ $id: 'x', value: 1 })
+    t.fail('Should throw')
+  } catch (error) {
+    t.equal(error.message, 'Schema with id "x" already declared')
+  }
+
+  app.post('/', {
+    handler: echo,
+    schema: {
+      body: Joi.object({
+        a: Joi.ref('b.c'),
+        b: { c: Joi.any() },
+        c: Joi.ref('$x')
+      })
+    }
+  })
+
+  {
+    const res = await app.inject({
+      url: '/',
+      method: 'POST',
+      body: { a: 5, b: { c: 5 }, c: 42 }
+    })
+    t.equal(res.statusCode, 200)
+  }
+
+  {
+    const res = await app.inject({
+      url: '/',
+      method: 'POST',
+      body: { a: 5, b: { c: 5 }, c: 999 }
+    })
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: '"c" must be [ref:global:x]'
+    })
+  }
 })
