@@ -84,12 +84,16 @@ When you instantiate the compiler, the returned object has the following propert
 - `bucket`: the object to support `fastify.addSchema()`
 - `joi`: a customized `joi` instance that contains the installed `extensions`.
 
+> **Warning**
+> The async `joi` extensions are not supported by Fastify, so **you can use only the sync ones**.
+
 
 ### How to use `ref`
 
 The `joi` module supports the [`ref`](https://joi.dev/api/?v=17.7.0#refkey-options) feature to link the `context` configuration.
 
-You can configure the `context` option by using the [`fastify.addSchema()`](https://www.fastify.io/docs/latest/Reference/Server/#addschema) method.
+You can configure the `context` option by using the [`fastify.addSchema()`](https://www.fastify.io/docs/latest/Reference/Server/#addschema) method.  
+Note that, as the Fastify default compiler, this feature is fully encapsulated!
 
 In this case you will need to use a special schema object:
 
