@@ -8,13 +8,17 @@ const contextBucket = require('./src/bucket')
 
 warning.create('JoiCompiler', 'FSTJOI001', 'You cannot use external schemas via "fastify.addSchema" with Joi')
 
+const defaultJoiPrefs = Object.freeze({
+  stripUnknown: true
+})
+
 function ValidatorSelector (opts = {}) {
   const {
-    prefs,
+    prefs = defaultJoiPrefs,
     extensions
   } = opts
 
-  if (prefs) {
+  if (prefs !== defaultJoiPrefs) {
     Joi.checkPreferences(prefs)
   }
 

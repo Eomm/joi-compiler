@@ -14,7 +14,7 @@ function contextBucket (parentSchemas) {
         throw new Error(`Schema with id "${inputSchema.$id}" already declared`)
       }
 
-      context[inputSchema.$id] = inputSchema.value
+      context[inputSchema.$id] = inputSchema.$value
     },
     getSchema (schema$id) { return context[schema$id] },
     getSchemas () { return context }

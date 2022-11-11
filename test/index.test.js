@@ -120,12 +120,12 @@ tap.test('Should manage the context via bucket context', async t => {
   }
   t.teardown(() => process.removeListener('warning', onWarning))
 
-  app.addSchema({ $id: 'x', value: 42 })
+  app.addSchema({ $id: 'x', $value: 42 })
   const schema = app.getSchema('x')
   t.equal(schema, 42)
 
   try {
-    app.addSchema({ $id: 'x', value: 1 })
+    app.addSchema({ $id: 'x', $value: 1 })
     t.fail('Should throw')
   } catch (error) {
     t.equal(error.message, 'Schema with id "x" already declared')
