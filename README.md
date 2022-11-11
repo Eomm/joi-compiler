@@ -1,7 +1,7 @@
 # joi-compiler
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
-[![Continuous Integration](https://github.com/fastify/ajv-compiler/workflows/Continuous%20Integration/badge.svg)](https://github.com/fastify/ajv-compiler/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/Eomm/joi-compiler/workflows/Continuous%20Integration/badge.svg)](https://github.com/Eomm/joi-compiler/actions/workflows/ci.yml)
 
 Build and manage the [`joi`](https://joi.dev/) instances for the Fastify framework.
 
