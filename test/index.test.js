@@ -223,14 +223,14 @@ tap.test('Custom extensions', async t => {
   {
     const res = await app.inject({ url: '/', headers: { 'x-date': '11-01-1989', 'x-name': 'foo' } })
     t.equal(res.statusCode, 200)
-    t.match(res.json().headers['x-date'], '1989-01-10T')
+    t.match(res.json().headers['x-date'], '1989-01-11T')
     t.match(res.json().headers['x-name'], 'bar', 'should be coerced')
   }
 
   {
     const res = await app.inject({ url: '/', headers: { 'x-date': '1989/01/11', 'x-name': 'asd' } })
     t.equal(res.statusCode, 200)
-    t.match(res.json().headers['x-date'], '1989-01-10T')
+    t.match(res.json().headers['x-date'], '1989-01-11T')
     t.match(res.json().headers['x-name'], 'asd', 'should not coerce')
   }
 })
