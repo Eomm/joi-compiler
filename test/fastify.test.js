@@ -177,3 +177,80 @@ tap.test('Encasulation context', async t => {
     t.equal(res.statusCode, 200)
   }
 })
+
+tap.test('Works with AJV', async t => {
+  const joiCompilerInstance = JoiCompiler()
+
+  const app = fastify()
+
+  app.post('/ajv', {
+    handler: (request) => request.body,
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          toX: { const: 42 },
+          toY: { const: 50 }
+        }
+      }
+    }
+  })
+
+  app.register(async function pluginJoi (app, opts) {
+    app.setSchemaController({
+      bucket: joiCompilerInstance.bucket,
+      compilersFactory: {
+        buildValidator: joiCompilerInstance.buildValidator
+      }
+    })
+
+    app.addSchema({ $id: 'x', $value: 42 })
+    app.addSchema({ $id: 'y', $value: 50 })
+
+    app.post('/joi', {
+      handler: (request) => request.body,
+      schema: {
+        body: Joi.object({
+          toX: Joi.ref('$x'),
+          toY: Joi.ref('$y')
+        })
+      }
+    })
+  })
+
+  {
+    const res = await app.inject({
+      url: '/joi',
+      method: 'POST',
+      body: { toX: 42, toY: 51 }
+    })
+    t.equal(res.statusCode, 400)
+    t.equal(res.json().message, '"toY" must be [ref:global:y]')
+  }
+  {
+    const res = await app.inject({
+      url: '/joi',
+      method: 'POST',
+      body: { toX: 42, toY: 50 }
+    })
+    t.equal(res.statusCode, 200, 'valid-y')
+  }
+
+  {
+    const res = await app.inject({
+      url: '/ajv',
+      method: 'POST',
+      body: { toX: 42, toY: 51 }
+    })
+    t.equal(res.statusCode, 400)
+    t.equal(res.json().message, 'body/toY must be equal to constant')
+  }
+  {
+    const res = await app.inject({
+      url: '/ajv',
+      method: 'POST',
+      body: { toX: 42, toY: 50 }
+    })
+    t.equal(res.statusCode, 200)
+  }
+})

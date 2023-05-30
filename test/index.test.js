@@ -169,3 +169,87 @@ tap.test('Custom extensions', async t => {
     t.match(res.json().headers['x-name'], 'asd', 'should not coerce')
   }
 })
+
+tap.test('Supports async validation', async t => {
+  t.plan(9)
+
+  const factory = JoiCompiler({
+    asyncValidation: true
+  })
+
+  const app = fastify({
+    exposeHeadRoutes: false,
+    schemaController: {
+      compilersFactory: {
+        buildValidator: factory.buildValidator
+      }
+    }
+  })
+
+  app.get('/', {
+    handler: echo,
+    schema: {
+      headers: Joi.object({
+        'user-agent': Joi.string().external(async (val) => {
+          t.pass('external called')
+          if (val !== 'lightMyRequest') {
+            throw new Error('Invalid user-agent')
+          }
+
+          t.equal(val, 'lightMyRequest')
+          return val
+        }),
+        host: Joi.string().required()
+      })
+    }
+  })
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'lightMyRequest',
+        host: 'localhost:80'
+      }
+    })
+    t.equal(res.statusCode, 200)
+    t.same(res.json().headers, {
+      'user-agent': 'lightMyRequest',
+      host: 'localhost:80'
+    })
+  }
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'invalid',
+        host: 'localhost:80'
+      }
+    })
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
+      error: 'Bad Request',
+      message: 'Invalid user-agent (user-agent)'
+    })
+  }
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'lightMyRequest',
+        host: undefined
+      }
+    })
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
+      error: 'Bad Request',
+      message: 'Missing'
+    })
+  }
+})
