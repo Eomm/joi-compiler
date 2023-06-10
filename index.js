@@ -15,6 +15,7 @@ const defaultJoiPrefs = Object.freeze({
 function ValidatorSelector (opts = {}) {
   const {
     prefs = defaultJoiPrefs,
+    asyncValidation = false,
     extensions
   } = opts
 
@@ -33,10 +34,17 @@ function ValidatorSelector (opts = {}) {
 
     return function validatorCompiler ({ schema /*, method, url, httpPart */ }) {
       return function executeValidation (data) {
-        return schema.validate(data, {
-          ...prefs,
-          context: externalSchemas
-        })
+        if (asyncValidation === false) {
+          return schema.validate(data, {
+            ...prefs,
+            context: externalSchemas
+          })
+        } else {
+          return schema.validateAsync(data, {
+            ...prefs,
+            context: externalSchemas
+          })
+        }
       }
     }
   }

@@ -13,7 +13,7 @@ This allows the user to decide which version of `joi` to use in their Fastify ba
 
 | `joi-compiler` | `joi` | `fastify` |
 |---------------:|------:|----------:|
-|           v1.x | v17.x |      ^4.x |
+|           v1.x | v17.x |     ^4.18 |
 
 
 ### JOI Configuration
@@ -71,10 +71,15 @@ const factory = JoiCompiler({
   prefs: {
     allowUnknown: true
   },
-  // optionally: an array with custom JOI extensions
+
+// optionally: an array with custom JOI extensions
   extensions: [
     require('@joi/date')
-  ]
+  ],
+
+  // optionally: if you want to use the async validation. Default: false
+  // Note that this option is supported ONLY by Fastify since v4.18.0
+  asyncValidation: true
 })
 ```
 
@@ -85,7 +90,7 @@ When you instantiate the compiler, the returned object has the following propert
 - `joi`: a customized `joi` instance that contains the installed `extensions`.
 
 > **Warning**
-> The async `joi` extensions are not supported by Fastify, so **you can use only the sync ones**.
+> The async `joi` extensions are supported by Fastify since [`v4.18.0`](https://github.com/fastify/fastify/pull/4752).
 
 
 ### How to use `ref`

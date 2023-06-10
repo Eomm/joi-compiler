@@ -48,6 +48,7 @@ tap.test('Basic validation', async t => {
     t.equal(res.statusCode, 400)
     t.same(res.json(), {
       statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
       message: '"foo" is required'
     })
@@ -150,6 +151,7 @@ tap.test('Custom extensions', async t => {
     t.equal(res.statusCode, 400)
     t.same(res.json(), {
       statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
       message: '"x-date" is required'
     })
@@ -167,5 +169,89 @@ tap.test('Custom extensions', async t => {
     t.equal(res.statusCode, 200)
     t.match(res.json().headers['x-date'], '1989-01-11T')
     t.match(res.json().headers['x-name'], 'asd', 'should not coerce')
+  }
+})
+
+tap.test('Supports async validation', async t => {
+  // t.plan(9)
+
+  const factory = JoiCompiler({
+    asyncValidation: true
+  })
+
+  const app = fastify({
+    exposeHeadRoutes: false,
+    schemaController: {
+      compilersFactory: {
+        buildValidator: factory.buildValidator
+      }
+    }
+  })
+
+  app.get('/', {
+    handler: echo,
+    schema: {
+      headers: Joi.object({
+        'user-agent': Joi.string().external(async (val) => {
+          t.pass('external called')
+          if (val !== 'lightMyRequest') {
+            throw new Error('Invalid user-agent')
+          }
+
+          t.equal(val, 'lightMyRequest', 'LMR header is valid')
+          return val
+        }),
+        hostx: Joi.string().required()
+      })
+    }
+  })
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'lightMyRequest',
+        hostx: 'localhost:80'
+      }
+    })
+    t.equal(res.statusCode, 200)
+    t.same(res.json().headers, {
+      'user-agent': 'lightMyRequest',
+      hostx: 'localhost:80',
+      host: 'localhost:80'
+    })
+  }
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'invalid',
+        hostx: 'localhost:80'
+      }
+    })
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
+      error: 'Bad Request',
+      message: 'Invalid user-agent (user-agent)'
+    })
+  }
+
+  {
+    const res = await app.inject({
+      url: '/',
+      headers: {
+        'user-agent': 'lightMyRequest'
+      }
+    })
+    t.equal(res.statusCode, 400)
+    t.same(res.json(), {
+      statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
+      error: 'Bad Request',
+      message: '"hostx" is required'
+    })
   }
 })
