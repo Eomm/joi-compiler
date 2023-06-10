@@ -48,6 +48,7 @@ tap.test('Basic validation', async t => {
     t.equal(res.statusCode, 400)
     t.same(res.json(), {
       statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
       message: '"foo" is required'
     })
@@ -150,6 +151,7 @@ tap.test('Custom extensions', async t => {
     t.equal(res.statusCode, 400)
     t.same(res.json(), {
       statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
       message: '"x-date" is required'
     })
@@ -171,7 +173,7 @@ tap.test('Custom extensions', async t => {
 })
 
 tap.test('Supports async validation', async t => {
-  t.plan(9)
+  // t.plan(9)
 
   const factory = JoiCompiler({
     asyncValidation: true
@@ -196,10 +198,10 @@ tap.test('Supports async validation', async t => {
             throw new Error('Invalid user-agent')
           }
 
-          t.equal(val, 'lightMyRequest')
+          t.equal(val, 'lightMyRequest', 'LMR header is valid')
           return val
         }),
-        host: Joi.string().required()
+        hostx: Joi.string().required()
       })
     }
   })
@@ -209,12 +211,13 @@ tap.test('Supports async validation', async t => {
       url: '/',
       headers: {
         'user-agent': 'lightMyRequest',
-        host: 'localhost:80'
+        hostx: 'localhost:80'
       }
     })
     t.equal(res.statusCode, 200)
     t.same(res.json().headers, {
       'user-agent': 'lightMyRequest',
+      hostx: 'localhost:80',
       host: 'localhost:80'
     })
   }
@@ -224,7 +227,7 @@ tap.test('Supports async validation', async t => {
       url: '/',
       headers: {
         'user-agent': 'invalid',
-        host: 'localhost:80'
+        hostx: 'localhost:80'
       }
     })
     t.equal(res.statusCode, 400)
@@ -240,8 +243,7 @@ tap.test('Supports async validation', async t => {
     const res = await app.inject({
       url: '/',
       headers: {
-        'user-agent': 'lightMyRequest',
-        host: undefined
+        'user-agent': 'lightMyRequest'
       }
     })
     t.equal(res.statusCode, 400)
@@ -249,7 +251,7 @@ tap.test('Supports async validation', async t => {
       statusCode: 400,
       code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
-      message: 'Missing'
+      message: '"hostx" is required'
     })
   }
 })

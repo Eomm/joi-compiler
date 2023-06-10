@@ -75,6 +75,7 @@ tap.test('Should manage the context via bucket context', async t => {
     t.equal(res.statusCode, 400)
     t.same(res.json(), {
       statusCode: 400,
+      code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
       message: '"c" must be [ref:global:x]'
     })
