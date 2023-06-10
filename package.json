@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "test": "TZ=UTC tap test/**/*.test.js"
+    "test": "tap test/**/*.test.js"
   },
   "repository": {
     "type": "git",

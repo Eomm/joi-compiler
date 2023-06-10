@@ -13,7 +13,7 @@ This allows the user to decide which version of `joi` to use in their Fastify ba
 
 | `joi-compiler` | `joi` | `fastify` |
 |---------------:|------:|----------:|
-|           v1.x | v17.x |      ^4.x |
+|           v1.x | v17.x |     ^4.18 |
 
 
 ### JOI Configuration
