@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "test": "TZ=UTC borp --coverage --check-coverage"
+    "test": "borp --coverage --check-coverage"
   },
   "repository": {
     "type": "git",
