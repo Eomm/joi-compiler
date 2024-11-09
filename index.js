@@ -1,12 +1,17 @@
 'use strict'
 
 const Joi = require('joi')
-const warning = require('process-warning')()
+const { createWarning } = require('process-warning')
 
 const { kContextBucket } = require('./src/symbols')
 const contextBucket = require('./src/bucket')
 
-warning.create('JoiCompiler', 'FSTJOI001', 'You cannot use external schemas via "fastify.addSchema" with Joi')
+const warning = createWarning({
+  name: 'JoiCompiler',
+  code: 'FSTJOI001',
+  message: 'You cannot use external schemas via "fastify.addSchema" with Joi',
+  unlimited: false
+})
 
 const defaultJoiPrefs = Object.freeze({
   stripUnknown: true
@@ -29,7 +34,7 @@ function ValidatorSelector (opts = {}) {
     // ? options is equal to fastify({ ajv }) options
 
     if (!externalSchemas[kContextBucket] && Object.keys(externalSchemas).length > 0) {
-      warning.emit('FSTJOI001')
+      warning()
     }
 
     return function validatorCompiler ({ schema /*, method, url, httpPart */ }) {

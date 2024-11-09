@@ -96,7 +96,7 @@ tap.test('Encasulation context', async t => {
 
   app.addSchema({ $id: 'x', $value: 42 })
 
-  app.register(async function plugin (instance, opts, next) {
+  app.register(async function plugin (instance, opts) {
     instance.addSchema({ $id: 'y', $value: 50 })
     instance.post('/invalid-y', {
       handler: echo,
@@ -119,7 +119,7 @@ tap.test('Encasulation context', async t => {
     })
   })
 
-  app.register(async function plugin (instance, opts, next) {
+  app.register(async function plugin (instance, opts) {
     instance.addSchema({ $id: 'z', $value: 60 })
     instance.post('/invalid-z', {
       handler: echo,
