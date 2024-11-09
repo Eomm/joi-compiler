@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "test": "TZ=UTC tap test/**/*.test.js"
+    "test": "TZ=UTC borp --coverage --check-coverage"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/Eomm/joi-compiler#readme",
   "devDependencies": {
     "@joi/date": "^2.1.0",
+    "borp": "^0.18.0",
     "fastify": "^5.0.0",
     "standard": "^17.0.0",
     "tap": "^16.3.0"
