@@ -1,6 +1,6 @@
 'use strict'
 
-const tap = require('tap')
+const { test } = require('node:test')
 
 const Joi = require('joi')
 const fastify = require('fastify')
@@ -16,7 +16,7 @@ function echo (request, reply) {
   })
 }
 
-tap.test('Should manage the context via bucket context', async t => {
+test('Should manage the context via bucket context', async t => {
   const factory = JoiCompiler()
 
   const app = fastify({
@@ -31,19 +31,19 @@ tap.test('Should manage the context via bucket context', async t => {
   process.removeAllListeners('warning')
   process.on('warning', onWarning)
   function onWarning (warn) {
-    t.fail('Should not emit warning')
+    t.assert.fail('Should not emit warning')
   }
-  t.teardown(() => process.removeListener('warning', onWarning))
+  t.after(() => process.removeListener('warning', onWarning))
 
   app.addSchema({ $id: 'x', $value: 42 })
   const schema = app.getSchema('x')
-  t.equal(schema, 42)
+  t.assert.strictEqual(schema, 42)
 
   try {
     app.addSchema({ $id: 'x', $value: 1 })
-    t.fail('Should throw')
+    t.assert.fail('Should throw')
   } catch (error) {
-    t.equal(error.message, 'Schema with id "x" already declared')
+    t.assert.strictEqual(error.message, 'Schema with id "x" already declared')
   }
 
   app.post('/', {
@@ -63,7 +63,7 @@ tap.test('Should manage the context via bucket context', async t => {
       method: 'POST',
       body: { a: 5, b: { c: 5 }, c: 42 }
     })
-    t.equal(res.statusCode, 200)
+    t.assert.strictEqual(res.statusCode, 200)
   }
 
   {
@@ -72,8 +72,8 @@ tap.test('Should manage the context via bucket context', async t => {
       method: 'POST',
       body: { a: 5, b: { c: 5 }, c: 999 }
     })
-    t.equal(res.statusCode, 400)
-    t.same(res.json(), {
+    t.assert.strictEqual(res.statusCode, 400)
+    t.assert.deepStrictEqual(res.json(), {
       statusCode: 400,
       code: 'FST_ERR_VALIDATION',
       error: 'Bad Request',
@@ -82,7 +82,7 @@ tap.test('Should manage the context via bucket context', async t => {
   }
 })
 
-tap.test('Encasulation context', async t => {
+test('Encasulation context', async t => {
   const factory = JoiCompiler()
 
   const app = fastify({
@@ -96,7 +96,7 @@ tap.test('Encasulation context', async t => {
 
   app.addSchema({ $id: 'x', $value: 42 })
 
-  app.register(async function plugin (instance, opts, next) {
+  app.register(async function plugin (instance, opts) {
     instance.addSchema({ $id: 'y', $value: 50 })
     instance.post('/invalid-y', {
       handler: echo,
@@ -119,7 +119,7 @@ tap.test('Encasulation context', async t => {
     })
   })
 
-  app.register(async function plugin (instance, opts, next) {
+  app.register(async function plugin (instance, opts) {
     instance.addSchema({ $id: 'z', $value: 60 })
     instance.post('/invalid-z', {
       handler: echo,
@@ -148,8 +148,8 @@ tap.test('Encasulation context', async t => {
       method: 'POST',
       body: { toX: 42, toY: 50, toZ: 60 }
     })
-    t.equal(res.statusCode, 400)
-    t.equal(res.json().message, '"toZ" must be [ref:global:z]')
+    t.assert.strictEqual(res.statusCode, 400)
+    t.assert.strictEqual(res.json().message, '"toZ" must be [ref:global:z]')
   }
   {
     const res = await app.inject({
@@ -157,7 +157,7 @@ tap.test('Encasulation context', async t => {
       method: 'POST',
       body: { toX: 42, toY: 50 }
     })
-    t.equal(res.statusCode, 200, 'valid-y')
+    t.assert.strictEqual(res.statusCode, 200, 'valid-y')
   }
 
   {
@@ -166,8 +166,8 @@ tap.test('Encasulation context', async t => {
       method: 'POST',
       body: { toX: 42, toY: 50, toZ: 60 }
     })
-    t.equal(res.statusCode, 400)
-    t.equal(res.json().message, '"toY" must be [ref:global:y]')
+    t.assert.strictEqual(res.statusCode, 400)
+    t.assert.strictEqual(res.json().message, '"toY" must be [ref:global:y]')
   }
   {
     const res = await app.inject({
@@ -175,11 +175,11 @@ tap.test('Encasulation context', async t => {
       method: 'POST',
       body: { toX: 42, toZ: 60 }
     })
-    t.equal(res.statusCode, 200)
+    t.assert.strictEqual(res.statusCode, 200)
   }
 })
 
-tap.test('Works with AJV', async t => {
+test('Works with AJV', async t => {
   const joiCompilerInstance = JoiCompiler()
 
   const app = fastify()
@@ -225,8 +225,8 @@ tap.test('Works with AJV', async t => {
       method: 'POST',
       body: { toX: 42, toY: 51 }
     })
-    t.equal(res.statusCode, 400)
-    t.equal(res.json().message, '"toY" must be [ref:global:y]')
+    t.assert.strictEqual(res.statusCode, 400)
+    t.assert.strictEqual(res.json().message, '"toY" must be [ref:global:y]')
   }
   {
     const res = await app.inject({
@@ -234,7 +234,7 @@ tap.test('Works with AJV', async t => {
       method: 'POST',
       body: { toX: 42, toY: 50 }
     })
-    t.equal(res.statusCode, 200, 'valid-y')
+    t.assert.strictEqual(res.statusCode, 200, 'valid-y')
   }
 
   {
@@ -243,8 +243,8 @@ tap.test('Works with AJV', async t => {
       method: 'POST',
       body: { toX: 42, toY: 51 }
     })
-    t.equal(res.statusCode, 400)
-    t.equal(res.json().message, 'body/toY must be equal to constant')
+    t.assert.strictEqual(res.statusCode, 400)
+    t.assert.strictEqual(res.json().message, 'body/toY must be equal to constant')
   }
   {
     const res = await app.inject({
@@ -252,6 +252,6 @@ tap.test('Works with AJV', async t => {
       method: 'POST',
       body: { toX: 42, toY: 50 }
     })
-    t.equal(res.statusCode, 200)
+    t.assert.strictEqual(res.statusCode, 200)
   }
 })

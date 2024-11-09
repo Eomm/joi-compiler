@@ -1,7 +1,8 @@
 # joi-compiler
 
+[![Continuous Integration](https://github.com/Eomm/joi-compiler/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Eomm/joi-compiler/actions/workflows/ci.yml)
+[![NPM version](https://img.shields.io/npm/v/joi-compiler.svg?style=flat)](https://www.npmjs.com/package/joi-compiler)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
-[![Continuous Integration](https://github.com/Eomm/joi-compiler/workflows/Continuous%20Integration/badge.svg)](https://github.com/Eomm/joi-compiler/actions/workflows/ci.yml)
 
 Build and manage the [`joi`](https://joi.dev/) instances for the Fastify framework.
 
@@ -13,6 +14,7 @@ This allows the user to decide which version of `joi` to use in their Fastify ba
 
 | `joi-compiler` | `joi` | `fastify` |
 |---------------:|------:|----------:|
+|           v2.x | v17.x |     ^5.0 |
 |           v1.x | v17.x |     ^4.18 |
 
 
