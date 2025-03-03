@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "joi": "^17.7.0",
-    "process-warning": "^4.0.0"
+    "process-warning": "^5.0.0"
   }
 }
