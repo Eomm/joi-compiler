@@ -32,7 +32,7 @@
     "standard": "^17.0.0"
   },
   "dependencies": {
-    "joi": "^17.7.0",
+    "joi": "^18.0.0",
     "process-warning": "^5.0.0"
   }
 }
