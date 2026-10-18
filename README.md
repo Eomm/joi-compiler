@@ -14,6 +14,7 @@ This allows the user to decide which version of `joi` to use in their Fastify ba
 
 | `joi-compiler` | `joi` | `fastify` |
 |---------------:|------:|----------:|
+|           v3.x | v18.x |     ^5.0 |
 |           v2.x | v17.x |     ^5.0 |
 |           v1.x | v17.x |     ^4.18 |
 
